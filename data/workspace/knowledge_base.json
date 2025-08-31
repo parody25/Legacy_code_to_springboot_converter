@@ -1,0 +1,1745 @@
+{
+  "nodes": {
+    "MainApplication": {
+      "name": "MainApplication",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "ExceptionReportManager",
+        "BatchCheque",
+        "CurrencyExchangeService",
+        "Logger",
+        "chequeProcessor",
+        "out",
+        "ChequePrintingService",
+        "FraudDetectionService",
+        "EmailNotificationService",
+        "ChequeStatusManager",
+        "adminService",
+        "ClearinghouseService",
+        "CryptographyService",
+        "scanner",
+        "fraudDetectionService",
+        "ChequeProcessor",
+        "SignatureVerificationService",
+        "CoreBankingSystemUpdater",
+        "ArrayList",
+        "batchCheques",
+        "ex",
+        "ChequeImageHandler",
+        "UserService",
+        "exceptionReportManager",
+        "services",
+        "SimpleDateFormat",
+        "chequeStatusManager",
+        "chequeHistoryManager",
+        "Scanner",
+        "ChequeHistoryManager"
+      ],
+      "dependents": [],
+      "content": "public class MainApplication {\n\n    public static void main(String[] args) {\n        try {\n            User authenticatedUser = null;\n            Scanner scanner = new Scanner(System.in);\n\n            System.out.println(\"Starting Cheque Processing System with Enhanced Fraud Detection...\");\n            \n            // Initialize services\n            CurrencyExchangeService currencyExchangeService = new CurrencyExchangeService();\n            SignatureVerificationService signatureVerificationService = new SignatureVerificationService();\n            CoreBankingSystemUpdater coreBankingSystemUpdater = new CoreBankingSystemUpdater();\n            UserService userService = new UserService(); // Initialize UserService\n            ChequeHistoryManager chequeHistoryManager = new ChequeHistoryManager();\n            FraudDetectionService fraudDetectionService = new FraudDetectionService();\n            ExceptionReportManager exceptionReportManager = new ExceptionReportManager();\n            ChequeStatusManager chequeStatusManager = new ChequeStatusManager();\n            EmailNotificationService emailNotificationService = new EmailNotificationService();\n\n            // Set up dependencies\n            fraudDetectionService.setHistoryManager(chequeHistoryManager);\n\n            // Initialize new services for image processing\n            ChequeImageHandler imageHandler = new ChequeImageHandler();\n            CryptographyService cryptoService = new CryptographyService();\n            ClearinghouseService clearinghouseService = new ClearinghouseService();\n            System.out.println(\"System initialized successfully.\");\n\n            // --- Login Process ---\n            authenticatedUser = performLogin(scanner, userService);\n            if (authenticatedUser == null) {\n                System.out.println(\"Maximum login attempts reached. Exiting.\");\n                return; // Exit if login fails after retries\n            }\n\n            // Initialize cheque processor\n            ChequeProcessor chequeProcessor = new ChequeProcessor(currencyExchangeService, signatureVerificationService,\n                    coreBankingSystemUpdater, chequeHistoryManager, fraudDetectionService, exceptionReportManager, chequeStatusManager, emailNotificationService);\n            \n            System.out.println(\"System initialized successfully.\");\n    \n            while (authenticatedUser != null) { // Continue loop only if authenticated\n                System.out.println(\"\\n--- Cheque Processing System ---\");  \n                System.out.println(\"1. Process a Single Cheque\");  \n                System.out.println(\"2. Process Multiple Cheques (Batch)\");\n                System.out.println(\"3. View Cheque History\");  \n                System.out.println(\"4. Currency Exchange Information\");  \n                System.out.println(\"5. Generate Cheque Reports\");\n                System.out.println(\"6. Scan, Encrypt, and Send Cheque Image\"); // New Option\n                System.out.println(\"7. Simulate Cheque Printing\");\n                System.out.println(\"8. Exit\");  \n                System.out.println(\"9. View Cheque Exception Report\"); // New menu option\n                System.out.println(\"10. View All Cheque Statuses\"); // New menu option\n                System.out.println(\"11. Cancel a Cheque\"); // New menu option\n                System.out.println(\"12. Record FIR/Legal Complaint for Bounced Cheque\"); // New menu option\n                System.out.println(\"13. Admin: Edit IFSC/Bank Codes\");\n                System.out.println(\"14. Admin: Manage Batches\");\n                System.out.println(\"15. Admin: Reset Stuck Transactions\");\n                System.out.print(\"Enter your choice: \");  \n                int choice = scanner.nextInt();  \n                scanner.nextLine(); // Consume newline  \n    \n                switch (choice) {  \n                    case 1:  \n                        System.out.println(\"Enter account number:\");  \n                        String accountNumber = scanner.nextLine();  \n    \n                        System.out.println(\"Enter cheque number:\");  \n                        String chequeNumber = scanner.nextLine();  \n    \n                        System.out.println(\"Enter currency (e.g., USD, EUR, GBP):\");  \n                        String currency = scanner.nextLine();  \n    \n                        System.out.println(\"Enter amount:\");  \n                        double amount = scanner.nextDouble();  \n                        scanner.nextLine(); // Consume newline  \n    \n                        System.out.println(\"Enter signature:\");  \n                        String signature = scanner.nextLine();  \n    \n                        // Process the cheque  \n                        chequeProcessor.processCheque(accountNumber, chequeNumber, currency, amount, signature);  \n                        break;  \n    \n                    case 2:\n                        // Process multiple cheques in a batch\n                        processChequeBatch(scanner, chequeProcessor);\n                        break;\n    \n                    case 3:  \n                        System.out.println(\"Enter account number to view cheque history:\");  \n                        String historyAccountNumber = scanner.nextLine();  \n                        chequeHistoryManager.displayChequeHistory(historyAccountNumber);  \n                        break;  \n    \n                    case 4:\n                        displayCurrencyExchangeMenu(scanner, currencyExchangeService);\n                        break;\n                        \n                    case 5:\n                        handleReportGeneration(scanner, chequeHistoryManager);\n                        break;\n    \n                    case 6:\n                        handleChequeImageSubmission(scanner, imageHandler, cryptoService, clearinghouseService, authenticatedUser);\n                        break;\n    \n                    case 7:\n                        // Assumes ChequePrintingService is an inner static class or accessible here\n                        ChequePrintingService chequePrintingService = new ChequePrintingService();\n                        handleChequePrinting(scanner, chequePrintingService);\n                        break;\n    \n                    case 8:  \n                        System.out.println(\"Logging out and exiting...\");  \n                        scanner.close();  \n                        return;  \n    \n                    case 9:\n                        exceptionReportManager.displayExceptions();\n                        break;\n    \n                    case 10:\n                        chequeStatusManager.displayAllStatuses();\n                        break;\n    \n                    case 11:\n                        System.out.print(\"Enter account number: \");\n                        String cancelAccount = scanner.nextLine();\n                        System.out.print(\"Enter cheque number: \");\n                        String cancelCheque = scanner.nextLine();\n                        chequeProcessor.cancelCheque(cancelAccount, cancelCheque);\n                        break;\n\n                    case 12:\n                        System.out.print(\"Enter account number: \");\n                        String firAccount = scanner.nextLine();\n                        System.out.print(\"Enter cheque number: \");\n                        String firCheque = scanner.nextLine();\n                        System.out.print(\"Enter FIR/Complaint Number: \");\n                        String firNumber = scanner.nextLine();\n                        System.out.print(\"Enter Police Station: \");\n                        String policeStation = scanner.nextLine();\n                        System.out.print(\"Enter FIR/Complaint Date (YYYY-MM-DD): \");\n                        String firDateStr = scanner.nextLine();\n                        Date firDate;\n                        try {\n                            firDate = new SimpleDateFormat(\"yyyy-MM-dd\").parse(firDateStr);\n                        } catch (Exception e) {\n                            System.out.println(\"Invalid date format. Please use YYYY-MM-DD.\");\n                            break;\n                        }\n                        System.out.print(\"Enter Remarks: \");\n                        String firRemarks = scanner.nextLine();\n                        exceptionReportManager.recordFIRDetails(firAccount, firCheque, firNumber, policeStation, firDate, firRemarks);\n                        break;\n\n                    case 13:\n                        System.out.println(\"\\n--- Admin: Edit IFSC/Bank Codes ---\");\n                        System.out.println(\"1. Add/Update IFSC\");\n                        System.out.println(\"2. Add/Update Bank Code\");\n                        System.out.println(\"3. View IFSCs\");\n                        System.out.println(\"4. View Bank Codes\");\n                        System.out.println(\"5. Return\");\n                        System.out.print(\"Enter your choice: \");\n                        int adminChoice = scanner.nextInt();\n                        scanner.nextLine();\n                        switch (adminChoice) {\n                            case 1:\n                                System.out.print(\"Enter IFSC: \");\n                                String ifsc = scanner.nextLine();\n                                System.out.print(\"Enter Bank Code: \");\n                                String bankCode = scanner.nextLine();\n                                adminService.addOrUpdateIFSC(ifsc, bankCode);\n                                break;\n                            case 2:\n                                System.out.print(\"Enter Bank Code: \");\n                                String code = scanner.nextLine();\n                                System.out.print(\"Enter Bank Name: \");\n                                String name = scanner.nextLine();\n                                adminService.addOrUpdateBankCode(code, name);\n                                break;\n                            case 3:\n                                adminService.displayIFSCs();\n                                break;\n                            case 4:\n                                adminService.displayBankCodes();\n                                break;\n                            default:\n                                break;\n                        }\n                        break;\n\n                    case 14:\n                        System.out.println(\"\\n--- Admin: Manage Batches ---\");\n                        System.out.println(\"1. Create Batch\");\n                        System.out.println(\"2. View Batches\");\n                        System.out.println(\"3. View Batch Details\");\n                        System.out.println(\"4. Return\");\n                        System.out.print(\"Enter your choice: \");\n                        int batchChoice = scanner.nextInt();\n                        scanner.nextLine();\n                        switch (batchChoice) {\n                            case 1:\n                                System.out.print(\"Enter Batch ID: \");\n                                String batchId = scanner.nextLine();\n                                System.out.print(\"Enter number of cheques in batch: \");\n                                int numCheques = scanner.nextInt();\n                                scanner.nextLine();\n                                List<BatchCheque> batchCheques = new ArrayList<>();\n                                for (int i = 0; i < numCheques; i++) {\n                                    System.out.println(\"Enter details for Cheque #\" + (i + 1) + \":\");\n                                    System.out.print(\"Account number: \");\n                                    String acc = scanner.nextLine();\n                                    System.out.print(\"Cheque number: \");\n                                    String chq = scanner.nextLine();\n                                    System.out.print(\"Currency: \");\n                                    String curr = scanner.nextLine();\n                                    System.out.print(\"Amount: \");\n                                    double amt = scanner.nextDouble();\n                                    scanner.nextLine();\n                                    System.out.print(\"Signature: \");\n                                    String sig = scanner.nextLine();\n                                    batchCheques.add(new BatchCheque(acc, chq, curr, amt, sig));\n                                }\n                                adminService.createBatch(batchId, batchCheques);\n                                break;\n                            case 2:\n                                adminService.displayBatches();\n                                break;\n                            case 3:\n                                System.out.print(\"Enter Batch ID: \");\n                                String viewBatchId = scanner.nextLine();\n                                adminService.displayBatchDetails(viewBatchId);\n                                break;\n                            default:\n                                break;\n                        }\n                        break;\n\n                    case 15:\n                        System.out.println(\"\\n--- Admin: Reset Stuck Transactions ---\");\n                        System.out.println(\"1. Mark Cheque as Stuck\");\n                        System.out.println(\"2. Reset Stuck Cheque\");\n                        System.out.println(\"3. View Stuck Transactions\");\n                        System.out.println(\"4. Return\");\n                        System.out.print(\"Enter your choice: \");\n                        int stuckChoice = scanner.nextInt();\n                        scanner.nextLine();\n                        switch (stuckChoice) {\n                            case 1:\n                                System.out.print(\"Enter Cheque Number to mark as stuck: \");\n                                String stuckChq = scanner.nextLine();\n                                adminService.markTransactionStuck(stuckChq);\n                                break;\n                            case 2:\n                                System.out.print(\"Enter Cheque Number to reset: \");\n                                String resetChq = scanner.nextLine();\n                                adminService.resetStuckTransaction(resetChq);\n                                break;\n                            case 3:\n                                adminService.displayStuckTransactions();\n                                break;\n                            default:\n                                break;\n                        }\n                        break;\n    \n                    default:  \n                        System.out.println(\"Invalid choice. Please try again.\");  \n                }\n            }\n        } catch (Exception ex) {\n            Logger.error(\"Fatal error in main: \" + ex.getMessage());\n            ex.printStackTrace();\n        }\n    }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 14,
+        "end_line": 291
+      }
+    },
+    "EmailNotificationService": {
+      "name": "EmailNotificationService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "out"
+      ],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication"
+      ],
+      "content": "class EmailNotificationService {\n    public void sendEmail(String to, String subject, String body) {\n        // In a real system, integrate with JavaMail or an SMTP server.\n        // For simulation, just print to console.\n        System.out.println(\"\\n--- EMAIL NOTIFICATION ---\");\n        System.out.println(\"To: \" + to);\n        System.out.println(\"Subject: \" + subject);\n        System.out.println(\"Body:\\n\" + body);\n        System.out.println(\"--------------------------\\n\");\n    }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 3015,
+        "end_line": 3024
+      }
+    },
+    "ChequePrintingService": {
+      "name": "ChequePrintingService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "bankName",
+        "out",
+        "SimpleDateFormat",
+        "currencyFormatter",
+        "NumberFormat",
+        "dateFormat"
+      ],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication"
+      ],
+      "content": "class ChequePrintingService {\n        public void printCheque(String payeeName, double amount, Date date, String accountNumber, String chequeNumber, String bankName) {\n            SimpleDateFormat dateFormat = new SimpleDateFormat(\"dd-MMM-yyyy\");\n            NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.US); // Assuming USD\n\n            System.out.println(\"\\n+----------------------------------------------------------------------+\");\n            System.out.printf(\"| %-50s Date: %-10s |\\n\", bankName.toUpperCase(), dateFormat.format(date));\n            System.out.println(\"|                                                                      |\");\n            System.out.printf(\"| Pay To: %-30s Amount: %-15s |\\n\", payeeName, currencyFormatter.format(amount));\n            // Amount in words is complex, for simulation, we can skip or put a placeholder\n            System.out.printf(\"| Amount in Words: %-45s |\\n\", \"*(Numeric Amount Above)*\");\n            System.out.println(\"|                                                                      |\");\n            System.out.println(\"|                                                                      |\");\n            System.out.printf(\"| Account No: %-25s Cheque No: %-15s |\\n\", accountNumber, chequeNumber);\n            System.out.println(\"|                                                                      |\");\n            System.out.println(\"|                                                 Signature:           |\");\n            System.out.println(\"|                                                 -------------------- |\");\n            System.out.println(\"+----------------------------------------------------------------------+\");\n            System.out.println(\"Cheque simulation printed successfully.\\n\");\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 3030,
+        "end_line": 3049
+      }
+    },
+    "User": {
+      "name": "User",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [],
+      "content": "class User {\n    private String username;\n    private String password; // In a real app, this would be hashed\n    private String role; // e.g., \"EMPLOYEE\", \"ACCOUNT_HOLDER\"\n\n    public User(String username, String password, String role) {\n        this.username = username;\n        this.password = password;\n        this.role = role;\n    }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 4796,
+        "end_line": 4805
+      }
+    },
+    "UserService": {
+      "name": "UserService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "HashMap"
+      ],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication",
+        "CreateApplication"
+      ],
+      "content": "class UserService {\n    private Map<String, User> users = new HashMap<>();\n\n    public UserService() {\n        // Add some sample users for demonstration\n        registerUser(\"employee1\", \"password123\", \"EMPLOYEE\");\n        registerUser(\"account1001\", \"chequeuser\", \"ACCOUNT_HOLDER\");\n        registerUser(\"account1002\", \"securepass\", \"ACCOUNT_HOLDER\");\n    }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 4823,
+        "end_line": 4831
+      }
+    },
+    "BatchCheque": {
+      "name": "BatchCheque",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication"
+      ],
+      "content": "class BatchCheque {\n    String accountNumber;\n    String chequeNumber;\n    String currency;\n    double amount;\n    String signature;\n\n    public BatchCheque(String accountNumber, String chequeNumber, String currency, double amount, String signature) {\n        this.accountNumber = accountNumber;\n        this.chequeNumber = chequeNumber;\n        this.currency = currency;\n        this.amount = amount;\n        this.signature = signature;\n    }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 4864,
+        "end_line": 4877
+      }
+    },
+    "ExceptionReportManager": {
+      "name": "ExceptionReportManager",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication"
+      ],
+      "content": "class ExceptionReportManager {\n        static class ExceptionRecord {\n            String accountNumber, chequeNumber, type, details;\n            Date date;\n            FIRDetails firDetails; // New: FIR/legal complaint details\n\n            ExceptionRecord(String accountNumber, String chequeNumber, String type, String details, Date date) {\n                this.accountNumber = accountNumber;\n                this.chequeNumber = chequeNumber;\n                this.type = type;\n                this.details = details;\n                this.date = date;\n                this.firDetails = null;\n            }\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 3142,
+        "end_line": 3156
+      }
+    },
+    "ExceptionRecord": {
+      "name": "ExceptionRecord",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [],
+      "content": "class ExceptionRecord {\n            String accountNumber, chequeNumber, type, details;\n            Date date;\n            FIRDetails firDetails; // New: FIR/legal complaint details\n\n            ExceptionRecord(String accountNumber, String chequeNumber, String type, String details, Date date) {\n                this.accountNumber = accountNumber;\n                this.chequeNumber = chequeNumber;\n                this.type = type;\n                this.details = details;\n                this.date = date;\n                this.firDetails = null;\n            }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 3143,
+        "end_line": 3155
+      }
+    },
+    "FIRDetails": {
+      "name": "FIRDetails",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [],
+      "content": "class FIRDetails {\n            String firNumber;\n            String policeStation;\n            Date firDate;\n            String remarks;\n\n            FIRDetails(String firNumber, String policeStation, Date firDate, String remarks) {\n                this.firNumber = firNumber;\n                this.policeStation = policeStation;\n                this.firDate = firDate;\n                this.remarks = remarks;\n            }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 3159,
+        "end_line": 3170
+      }
+    },
+    "ChequeStatusManager": {
+      "name": "ChequeStatusManager",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "out",
+        "chequeStatusMap",
+        "HashMap"
+      ],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication"
+      ],
+      "content": "class ChequeStatusManager {\n        // Key: accountNumber + \":\" + chequeNumber, Value: ChequeStatus\n        private Map<String, ChequeStatus> chequeStatusMap = new HashMap<>();\n\n        public void setStatus(String accountNumber, String chequeNumber, ChequeStatus status) {\n            chequeStatusMap.put(accountNumber + \":\" + chequeNumber, status);\n            System.out.println(\"Status of cheque \" + chequeNumber + \" for account \" + accountNumber + \" set to \" + status);\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 3229,
+        "end_line": 3236
+      }
+    },
+    "Logger": {
+      "name": "Logger",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication"
+      ],
+      "content": "class Logger {\n        public enum Level { INFO, WARN, ERROR, DEBUG }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 3258,
+        "end_line": 3259
+      }
+    },
+    "ChequeImageHandler": {
+      "name": "ChequeImageHandler",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "out",
+        "Paths",
+        "Files",
+        "filePath"
+      ],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication"
+      ],
+      "content": "class ChequeImageHandler {\n        /**\n         * Simulates loading image data from a file path.\n         * In a real application, this would involve actual file I/O and image processing.\n         * @param filePath The path to the image file.\n         * @return A byte array representing the image data, or null on failure.\n         */\n        public byte[] loadImageData(String filePath) {\n            if (filePath == null || filePath.trim().isEmpty()) {\n                System.out.println(\"Error: Image file path cannot be empty.\");\n                return null;\n            }\n            // Simulate reading file content. For this demo, we'll just use the path string as bytes.\n            // In a real app: Files.readAllBytes(Paths.get(filePath));\n            System.out.println(\"Simulating reading image from: \" + filePath);\n            return (\"ImageData:\" + filePath + \":Content\").getBytes(StandardCharsets.UTF_8);\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 3275,
+        "end_line": 3291
+      }
+    },
+    "CryptographyService": {
+      "name": "CryptographyService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "String",
+        "encryptedString"
+      ],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication"
+      ],
+      "content": "class CryptographyService {\n        /**\n         * Simulates encrypting data.\n         * @param data The data to encrypt.\n         * @param key The encryption key.\n         * @return Mock encrypted data.\n         */\n        public byte[] encryptData(byte[] data, String key) {\n            // This is a placeholder. Real encryption would use JCA (Java Cryptography Architecture).\n            // For simulation, let's just prepend \"encrypted-\" and append the key.\n            String originalData = new String(data, StandardCharsets.UTF_8);\n            String encryptedString = \"encrypted(\" + key + \"):\" + originalData;\n            return encryptedString.getBytes(StandardCharsets.UTF_8);\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 3297,
+        "end_line": 3310
+      }
+    },
+    "ClearinghouseService": {
+      "name": "ClearinghouseService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "out",
+        "Math",
+        "digitalSignature"
+      ],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication"
+      ],
+      "content": "class ClearinghouseService {\n        /**\n         * Simulates submitting cheque image data and signature to a clearinghouse.\n         * @param accountNumber The account number.\n         * @param chequeNumber The cheque number.\n         * @param encryptedImageData The encrypted image data.\n         * @param digitalSignature The digital signature.\n         */\n        public void submitToClearinghouse(String accountNumber, String chequeNumber, byte[] encryptedImageData, String digitalSignature) {\n            System.out.println(\"\\n--- Submitting to Clearinghouse ---\");\n            System.out.println(\"Account: \" + accountNumber + \", Cheque: \" + chequeNumber);\n            System.out.println(\"Encrypted Data Length: \" + encryptedImageData.length + \" bytes\");\n            System.out.println(\"Digital Signature: \" + digitalSignature.substring(0, Math.min(digitalSignature.length(), 20)) + \"...\"); // Show partial signature\n            System.out.println(\"Simulating sending via SFTP/REST API...\");\n            System.out.println(\"Submission to clearinghouse successful (simulated).\");\n            System.out.println(\"---------------------------------\");\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 3329,
+        "end_line": 3345
+      }
+    },
+    "SignatureVerificationService": {
+      "name": "SignatureVerificationService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "accountSignatures",
+        "HashMap"
+      ],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication",
+        "CreateApplication"
+      ],
+      "content": "class SignatureVerificationService {\n        private Map<String, String> accountSignatures = new HashMap<>();\n\n        public SignatureVerificationService() {\n            // Initialize with some sample signatures for testing\n            accountSignatures.put(\"1001\", \"John Doe\");\n            accountSignatures.put(\"1002\", \"Jane Smith\");\n            accountSignatures.put(\"1003\", \"Robert Johnson\");\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 5216,
+        "end_line": 5224
+      }
+    },
+    "ChequeProcessor": {
+      "name": "ChequeProcessor",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication",
+        "CreateApplication"
+      ],
+      "content": "class ChequeProcessor {\n        private CurrencyExchangeService currencyExchangeService;\n        private SignatureVerificationService signatureVerificationService;\n        private CoreBankingSystemUpdater coreBankingSystemUpdater;\n        private ChequeHistoryManager chequeHistoryManager;\n        private FraudDetectionService fraudDetectionService;\n\n        public ChequeProcessor(CurrencyExchangeService currencyExchangeService,\n                               SignatureVerificationService signatureVerificationService,\n                               CoreBankingSystemUpdater coreBankingSystemUpdater,\n                               ChequeHistoryManager chequeHistoryManager,\n                               FraudDetectionService fraudDetectionService) {\n            this.currencyExchangeService = currencyExchangeService;\n            this.signatureVerificationService = signatureVerificationService;\n            this.coreBankingSystemUpdater = coreBankingSystemUpdater;\n            this.chequeHistoryManager = chequeHistoryManager;\n            this.fraudDetectionService = fraudDetectionService;\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 5272,
+        "end_line": 5289
+      }
+    },
+    "CurrencyExchangeService": {
+      "name": "CurrencyExchangeService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "HashMap"
+      ],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication",
+        "CreateApplication"
+      ],
+      "content": "class CurrencyExchangeService {\n        private Map<String, CurrencyRate> exchangeRateCache = new HashMap<>();\n        private static final String BASE_CURRENCY = \"USD\";\n        private static final long CACHE_EXPIRY_MINUTES = 60; // Cache expiry time in minutes\n        private static final String API_KEY = \"demo\"; // Replace with your actual API key for production\n\n        // Fallback exchange rates in case API is unavailable\n        private static final Map<String, Double> FALLBACK_RATES = new HashMap<String, Double>() {{\n            put(\"EUR\", 1.1);\n            put(\"GBP\", 1.3);\n            put(\"INR\", 0.013);\n            put(\"JPY\", 0.0091);\n            put(\"CAD\", 0.74);\n            put(\"AUD\", 0.67);\n            put(\"CHF\", 1.12);\n            put(\"CNY\", 0.14);\n            put(\"HKD\", 0.13);\n            put(\"NZD\", 0.62);\n        }}",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 5353,
+        "end_line": 5371
+      }
+    },
+    "CurrencyExchangeServiceV2": {
+      "name": "CurrencyExchangeServiceV2",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "RATES",
+        "HashMap"
+      ],
+      "dependents": [],
+      "content": "class CurrencyExchangeServiceV2 {\n        private Map<String, Double> cache = new HashMap<>();\n        private static final String BASE = \"USD\";\n        private static final String KEY = \"demo\";\n        // Fallback rates\n        private static final Map<String, Double> RATES = new HashMap<String, Double>();\n        static {\n            RATES.put(\"EUR\", 1.1);\n            RATES.put(\"GBP\", 1.3);\n            RATES.put(\"INR\", 0.013);\n            RATES.put(\"JPY\", 0.0091);\n            RATES.put(\"CAD\", 0.74);\n            RATES.put(\"AUD\", 0.67);\n            RATES.put(\"CHF\", 1.12);\n            RATES.put(\"CNY\", 0.14);\n            RATES.put(\"HKD\", 0.13);\n            RATES.put(\"NZD\", 0.62);\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 3794,
+        "end_line": 3811
+      }
+    },
+    "CurrencyRate": {
+      "name": "CurrencyRate",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [],
+      "content": "class CurrencyRate {\n        private double rate;\n        private java.time.LocalDateTime lastUpdated;\n\n        public CurrencyRate(double rate, java.time.LocalDateTime lastUpdated) {\n            this.rate = rate;\n            this.lastUpdated = lastUpdated;\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 5572,
+        "end_line": 5579
+      }
+    },
+    "FraudDetectionService": {
+      "name": "FraudDetectionService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [
+        "MainApplication",
+        "ChequeApplication",
+        "CreateApplication"
+      ],
+      "content": "class FraudDetectionService {\n        private FraudDetection fraudDetection;\n        private ChequeHistoryManager historyManager;\n        private Map<String, List<ChequeTransaction>> recentTransactions;\n\n        // Fraud detection thresholds\n        private static final int VELOCITY_CHECK_DAYS = 7;\n        private static final int VELOCITY_THRESHOLD = 5;\n        private static final double PATTERN_THRESHOLD = 0.95; // 95% similarity threshold\n        private static final double SIMILAR_AMOUNT_THRESHOLD = 0.90; // 90% similarity threshold\n        private static final int UNUSUAL_FREQUENCY_THRESHOLD = 3; // 3x normal frequency\n\n        // Fraud alert levels\n        public enum AlertLevel {\n            LOW,\n            MEDIUM,\n            HIGH,\n            CRITICAL\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 5594,
+        "end_line": 5612
+      }
+    },
+    "ChequeTransaction": {
+      "name": "ChequeTransaction",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [],
+      "content": "class ChequeTransaction {\n            private double amount;\n            private java.time.LocalDate date;\n\n            public ChequeTransaction(double amount, java.time.LocalDate date) {\n                this.amount = amount;\n                this.date = date;\n            }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 5790,
+        "end_line": 5797
+      }
+    },
+    "FraudDetectionServiceV1": {
+      "name": "FraudDetectionServiceV1",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [],
+      "content": "class FraudDetectionServiceV1 {\n        private FraudDetection fraudDetection;\n        private ChequeHistoryManager historyManager;\n        private Map<String, List<ChequeTransaction>> recentTransactions;\n\n        // Fraud detection thresholds\n        private static final int VELOCITY_CHECK_DAYS = 7;\n        private static final int VELOCITY_THRESHOLD = 5;\n        private static final double PATTERN_THRESHOLD = 0.95; // 95% similarity threshold\n        private static final double SIMILAR_AMOUNT_THRESHOLD = 0.90; // 90% similarity threshold\n        private static final int UNUSUAL_FREQUENCY_THRESHOLD = 3; // 3x normal frequency\n\n        // Fraud alert levels\n        public enum AlertLevel {\n            LOW,\n            MEDIUM,\n            HIGH,\n            CRITICAL\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 4129,
+        "end_line": 4147
+      }
+    },
+    "FraudDetectionServiceV2": {
+      "name": "FraudDetectionServiceV2",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [],
+      "content": "class FraudDetectionServiceV2 {\n        private FraudDetection fraudDetection;\n        private ChequeHistoryManager historyManager;\n        private Map<String, List<ChequeTransaction>> recentTransactions;\n        private Map<String, Integer> duplicateChequeCounter;\n        private Map<String, List<Double>> abnormalAmounts;\n        private Map<String, List<Double>> suspiciousAmounts;\n        private Map<String, List<Double>> velocityAmounts;\n        private Map<String, List<Double>> patternAmounts;\n        private Map<String, List<Double>> historicalDuplicateAmounts;\n        private Map<String, List<Double>> unusualFrequencyAmounts;\n        private Map<String, List<Double>> similarToRecentAmounts;\n        private List<String> fraudLogs;\n        private int totalFraudChecks;\n\n        // Fraud detection thresholds\n        private static final int VELOCITY_CHECK_DAYS = 7;\n        private static final int VELOCITY_THRESHOLD = 5;\n        private static final double PATTERN_THRESHOLD = 0.95; // 95% similarity threshold\n        private static final double SIMILAR_AMOUNT_THRESHOLD = 0.90; // 90% similarity threshold\n        private static final int UNUSUAL_FREQUENCY_THRESHOLD = 3; // 3x normal frequency\n\n        // Fraud alert levels\n        public enum AlertLevel {\n            LOW,\n            MEDIUM,\n            HIGH,\n            CRITICAL\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 4348,
+        "end_line": 4376
+      }
+    },
+    "FraudDetection": {
+      "name": "FraudDetection",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "chequeRegistry",
+        "HashSet",
+        "processedCheques",
+        "HashMap"
+      ],
+      "dependents": [],
+      "content": "class FraudDetection {\n        private static final double ABNORMAL_AMOUNT_THRESHOLD = 10000.0;\n        private static final double SUSPICIOUS_ACTIVITY_MULTIPLIER = 10.0;\n        private static final double AMOUNT_VARIANCE_THRESHOLD = 0.05;\n\n        private Map<String, Set<String>> chequeRegistry = new HashMap<>();\n        private Map<String, Double> accountActivity = new HashMap<>();\n        private Map<String, List<TransactionRecord>> accountTransactionHistory = new HashMap<>();\n        private Map<String, AccountProfile> accountProfiles = new HashMap<>();\n\n        public boolean isDuplicateCheque(String accountId, String chequeNumber) {\n            if (!chequeRegistry.containsKey(accountId)) {\n                chequeRegistry.put(accountId, new HashSet<>());\n            }\n            Set<String> processedCheques = chequeRegistry.get(accountId);\n            if (processedCheques.contains(chequeNumber)) {\n                return true;\n            }\n            processedCheques.add(chequeNumber);\n            return false;\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 5812,
+        "end_line": 5832
+      }
+    },
+    "TransactionRecord": {
+      "name": "TransactionRecord",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [],
+      "dependents": [],
+      "content": "class TransactionRecord {\n            private double amount;\n            private java.time.LocalDateTime timestamp;\n\n            public TransactionRecord(double amount, java.time.LocalDateTime timestamp) {\n                this.amount = amount;\n                this.timestamp = timestamp;\n            }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 5883,
+        "end_line": 5890
+      }
+    },
+    "AccountProfile": {
+      "name": "AccountProfile",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "Math"
+      ],
+      "dependents": [],
+      "content": "class AccountProfile {\n            private double totalAmount = 0.0;\n            private int transactionCount = 0;\n            private double maxAmount = 0.0;\n            private double minAmount = Double.MAX_VALUE;\n\n            public void updateWithTransaction(double amount) {\n                totalAmount += amount;\n                transactionCount++;\n                maxAmount = Math.max(maxAmount, amount);\n                minAmount = Math.min(minAmount, amount);\n            }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 5893,
+        "end_line": 5904
+      }
+    },
+    "AdminService": {
+      "name": "AdminService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "out",
+        "HashSet",
+        "ifscToBankCode",
+        "HashMap"
+      ],
+      "dependents": [],
+      "content": "class AdminService {\n        // Master data: IFSC and bank codes\n        private Map<String, String> ifscToBankCode = new HashMap<>();\n        private Map<String, String> bankCodeToName = new HashMap<>();\n\n        // Batch management\n        private Map<String, List<BatchCheque>> batches = new HashMap<>();\n        // Stuck transactions (for demo, just a list of cheque numbers)\n        private Set<String> stuckTransactions = new HashSet<>();\n\n        // --- Master Data Management ---\n        public void addOrUpdateIFSC(String ifsc, String bankCode) {\n            ifscToBankCode.put(ifsc, bankCode);\n            System.out.println(\"IFSC \" + ifsc + \" mapped to bank code \" + bankCode);\n        }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 4697,
+        "end_line": 4711
+      }
+    },
+    "ChequeApplication": {
+      "name": "ChequeApplication",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "ExceptionReportManager",
+        "BatchCheque",
+        "CurrencyExchangeService",
+        "Logger",
+        "chequeProcessor",
+        "out",
+        "ChequePrintingService",
+        "FraudDetectionService",
+        "EmailNotificationService",
+        "ChequeStatusManager",
+        "adminService",
+        "ClearinghouseService",
+        "CryptographyService",
+        "scanner",
+        "fraudDetectionService",
+        "ChequeProcessor",
+        "SignatureVerificationService",
+        "CoreBankingSystemUpdater",
+        "ArrayList",
+        "batchCheques",
+        "ex",
+        "ChequeImageHandler",
+        "UserService",
+        "exceptionReportManager",
+        "services",
+        "SimpleDateFormat",
+        "chequeStatusManager",
+        "chequeHistoryManager",
+        "Scanner",
+        "ChequeHistoryManager"
+      ],
+      "dependents": [],
+      "content": "public class ChequeApplication {\n\n    public static void main(String[] args) {\n        try {\n            User authenticatedUser = null;\n            Scanner scanner = new Scanner(System.in);\n\n            System.out.println(\"Starting Cheque Processing System with Enhanced Fraud Detection...\");\n            \n            // Initialize services\n            CurrencyExchangeService currencyExchangeService = new CurrencyExchangeService();\n            SignatureVerificationService signatureVerificationService = new SignatureVerificationService();\n            CoreBankingSystemUpdater coreBankingSystemUpdater = new CoreBankingSystemUpdater();\n            UserService userService = new UserService(); // Initialize UserService\n            ChequeHistoryManager chequeHistoryManager = new ChequeHistoryManager();\n            FraudDetectionService fraudDetectionService = new FraudDetectionService();\n            ExceptionReportManager exceptionReportManager = new ExceptionReportManager();\n            ChequeStatusManager chequeStatusManager = new ChequeStatusManager();\n            EmailNotificationService emailNotificationService = new EmailNotificationService();\n\n            // Set up dependencies\n            fraudDetectionService.setHistoryManager(chequeHistoryManager);\n\n            // Initialize new services for image processing\n            ChequeImageHandler imageHandler = new ChequeImageHandler();\n            CryptographyService cryptoService = new CryptographyService();\n            ClearinghouseService clearinghouseService = new ClearinghouseService();\n            System.out.println(\"System initialized successfully.\");\n\n            // --- Login Process ---\n            authenticatedUser = performLogin(scanner, userService);\n            if (authenticatedUser == null) {\n                System.out.println(\"Maximum login attempts reached. Exiting.\");\n                return; // Exit if login fails after retries\n            }\n\n            // Initialize cheque processor\n            ChequeProcessor chequeProcessor = new ChequeProcessor(currencyExchangeService, signatureVerificationService,\n                    coreBankingSystemUpdater, chequeHistoryManager, fraudDetectionService, exceptionReportManager, chequeStatusManager, emailNotificationService);\n            \n            System.out.println(\"System initialized successfully.\");\n    \n            while (authenticatedUser != null) { // Continue loop only if authenticated\n                System.out.println(\"\\n--- Cheque Processing System ---\");  \n                System.out.println(\"1. Process a Single Cheque\");  \n                System.out.println(\"2. Process Multiple Cheques (Batch)\");\n                System.out.println(\"3. View Cheque History\");  \n                System.out.println(\"4. Currency Exchange Information\");  \n                System.out.println(\"5. Generate Cheque Reports\");\n                System.out.println(\"6. Scan, Encrypt, and Send Cheque Image\"); // New Option\n                System.out.println(\"7. Simulate Cheque Printing\");\n                System.out.println(\"8. Exit\");  \n                System.out.println(\"9. View Cheque Exception Report\"); // New menu option\n                System.out.println(\"10. View All Cheque Statuses\"); // New menu option\n                System.out.println(\"11. Cancel a Cheque\"); // New menu option\n                System.out.println(\"12. Record FIR/Legal Complaint for Bounced Cheque\"); // New menu option\n                System.out.println(\"13. Admin: Edit IFSC/Bank Codes\");\n                System.out.println(\"14. Admin: Manage Batches\");\n                System.out.println(\"15. Admin: Reset Stuck Transactions\");\n                System.out.print(\"Enter your choice: \");  \n                int choice = scanner.nextInt();  \n                scanner.nextLine(); // Consume newline  \n    \n                switch (choice) {  \n                    case 1:  \n                        System.out.println(\"Enter account number:\");  \n                        String accountNumber = scanner.nextLine();  \n    \n                        System.out.println(\"Enter cheque number:\");  \n                        String chequeNumber = scanner.nextLine();  \n    \n                        System.out.println(\"Enter currency (e.g., USD, EUR, GBP):\");  \n                        String currency = scanner.nextLine();  \n    \n                        System.out.println(\"Enter amount:\");  \n                        double amount = scanner.nextDouble();  \n                        scanner.nextLine(); // Consume newline  \n    \n                        System.out.println(\"Enter signature:\");  \n                        String signature = scanner.nextLine();  \n    \n                        // Process the cheque  \n                        chequeProcessor.processCheque(accountNumber, chequeNumber, currency, amount, signature);  \n                        break;  \n    \n                    case 2:\n                        // Process multiple cheques in a batch\n                        processChequeBatch(scanner, chequeProcessor);\n                        break;\n    \n                    case 3:  \n                        System.out.println(\"Enter account number to view cheque history:\");  \n                        String historyAccountNumber = scanner.nextLine();  \n                        chequeHistoryManager.displayChequeHistory(historyAccountNumber);  \n                        break;  \n    \n                    case 4:\n                        displayCurrencyExchangeMenu(scanner, currencyExchangeService);\n                        break;\n                        \n                    case 5:\n                        handleReportGeneration(scanner, chequeHistoryManager);\n                        break;\n    \n                    case 6:\n                        handleChequeImageSubmission(scanner, imageHandler, cryptoService, clearinghouseService, authenticatedUser);\n                        break;\n    \n                    case 7:\n                        // Assumes ChequePrintingService is an inner static class or accessible here\n                        ChequePrintingService chequePrintingService = new ChequePrintingService();\n                        handleChequePrinting(scanner, chequePrintingService);\n                        break;\n    \n                    case 8:  \n                        System.out.println(\"Logging out and exiting...\");  \n                        scanner.close();  \n                        return;  \n    \n                    case 9:\n                        exceptionReportManager.displayExceptions();\n                        break;\n    \n                    case 10:\n                        chequeStatusManager.displayAllStatuses();\n                        break;\n    \n                    case 11:\n                        System.out.print(\"Enter account number: \");\n                        String cancelAccount = scanner.nextLine();\n                        System.out.print(\"Enter cheque number: \");\n                        String cancelCheque = scanner.nextLine();\n                        chequeProcessor.cancelCheque(cancelAccount, cancelCheque);\n                        break;\n\n                    case 12:\n                        System.out.print(\"Enter account number: \");\n                        String firAccount = scanner.nextLine();\n                        System.out.print(\"Enter cheque number: \");\n                        String firCheque = scanner.nextLine();\n                        System.out.print(\"Enter FIR/Complaint Number: \");\n                        String firNumber = scanner.nextLine();\n                        System.out.print(\"Enter Police Station: \");\n                        String policeStation = scanner.nextLine();\n                        System.out.print(\"Enter FIR/Complaint Date (YYYY-MM-DD): \");\n                        String firDateStr = scanner.nextLine();\n                        Date firDate;\n                        try {\n                            firDate = new SimpleDateFormat(\"yyyy-MM-dd\").parse(firDateStr);\n                        } catch (Exception e) {\n                            System.out.println(\"Invalid date format. Please use YYYY-MM-DD.\");\n                            break;\n                        }\n                        System.out.print(\"Enter Remarks: \");\n                        String firRemarks = scanner.nextLine();\n                        exceptionReportManager.recordFIRDetails(firAccount, firCheque, firNumber, policeStation, firDate, firRemarks);\n                        break;\n\n                    case 13:\n                        System.out.println(\"\\n--- Admin: Edit IFSC/Bank Codes ---\");\n                        System.out.println(\"1. Add/Update IFSC\");\n                        System.out.println(\"2. Add/Update Bank Code\");\n                        System.out.println(\"3. View IFSCs\");\n                        System.out.println(\"4. View Bank Codes\");\n                        System.out.println(\"5. Return\");\n                        System.out.print(\"Enter your choice: \");\n                        int adminChoice = scanner.nextInt();\n                        scanner.nextLine();\n                        switch (adminChoice) {\n                            case 1:\n                                System.out.print(\"Enter IFSC: \");\n                                String ifsc = scanner.nextLine();\n                                System.out.print(\"Enter Bank Code: \");\n                                String bankCode = scanner.nextLine();\n                                adminService.addOrUpdateIFSC(ifsc, bankCode);\n                                break;\n                            case 2:\n                                System.out.print(\"Enter Bank Code: \");\n                                String code = scanner.nextLine();\n                                System.out.print(\"Enter Bank Name: \");\n                                String name = scanner.nextLine();\n                                adminService.addOrUpdateBankCode(code, name);\n                                break;\n                            case 3:\n                                adminService.displayIFSCs();\n                                break;\n                            case 4:\n                                adminService.displayBankCodes();\n                                break;\n                            default:\n                                break;\n                        }\n                        break;\n\n                    case 14:\n                        System.out.println(\"\\n--- Admin: Manage Batches ---\");\n                        System.out.println(\"1. Create Batch\");\n                        System.out.println(\"2. View Batches\");\n                        System.out.println(\"3. View Batch Details\");\n                        System.out.println(\"4. Return\");\n                        System.out.print(\"Enter your choice: \");\n                        int batchChoice = scanner.nextInt();\n                        scanner.nextLine();\n                        switch (batchChoice) {\n                            case 1:\n                                System.out.print(\"Enter Batch ID: \");\n                                String batchId = scanner.nextLine();\n                                System.out.print(\"Enter number of cheques in batch: \");\n                                int numCheques = scanner.nextInt();\n                                scanner.nextLine();\n                                List<BatchCheque> batchCheques = new ArrayList<>();\n                                for (int i = 0; i < numCheques; i++) {\n                                    System.out.println(\"Enter details for Cheque #\" + (i + 1) + \":\");\n                                    System.out.print(\"Account number: \");\n                                    String acc = scanner.nextLine();\n                                    System.out.print(\"Cheque number: \");\n                                    String chq = scanner.nextLine();\n                                    System.out.print(\"Currency: \");\n                                    String curr = scanner.nextLine();\n                                    System.out.print(\"Amount: \");\n                                    double amt = scanner.nextDouble();\n                                    scanner.nextLine();\n                                    System.out.print(\"Signature: \");\n                                    String sig = scanner.nextLine();\n                                    batchCheques.add(new BatchCheque(acc, chq, curr, amt, sig));\n                                }\n                                adminService.createBatch(batchId, batchCheques);\n                                break;\n                            case 2:\n                                adminService.displayBatches();\n                                break;\n                            case 3:\n                                System.out.print(\"Enter Batch ID: \");\n                                String viewBatchId = scanner.nextLine();\n                                adminService.displayBatchDetails(viewBatchId);\n                                break;\n                            default:\n                                break;\n                        }\n                        break;\n\n                    case 15:\n                        System.out.println(\"\\n--- Admin: Reset Stuck Transactions ---\");\n                        System.out.println(\"1. Mark Cheque as Stuck\");\n                        System.out.println(\"2. Reset Stuck Cheque\");\n                        System.out.println(\"3. View Stuck Transactions\");\n                        System.out.println(\"4. Return\");\n                        System.out.print(\"Enter your choice: \");\n                        int stuckChoice = scanner.nextInt();\n                        scanner.nextLine();\n                        switch (stuckChoice) {\n                            case 1:\n                                System.out.print(\"Enter Cheque Number to mark as stuck: \");\n                                String stuckChq = scanner.nextLine();\n                                adminService.markTransactionStuck(stuckChq);\n                                break;\n                            case 2:\n                                System.out.print(\"Enter Cheque Number to reset: \");\n                                String resetChq = scanner.nextLine();\n                                adminService.resetStuckTransaction(resetChq);\n                                break;\n                            case 3:\n                                adminService.displayStuckTransactions();\n                                break;\n                            default:\n                                break;\n                        }\n                        break;\n    \n                    default:  \n                        System.out.println(\"Invalid choice. Please try again.\");  \n                }\n            }\n        } catch (Exception ex) {\n            Logger.error(\"Fatal error in main: \" + ex.getMessage());\n            ex.printStackTrace();\n        }\n    }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 2405,
+        "end_line": 2682
+      }
+    },
+    "CreateApplication": {
+      "name": "CreateApplication",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "dependencies": [
+        "scanner",
+        "chequeHistoryManager",
+        "fraudDetectionService",
+        "ChequeProcessor",
+        "UserService",
+        "SignatureVerificationService",
+        "out",
+        "CoreBankingSystemUpdater",
+        "FraudDetectionService",
+        "CurrencyExchangeService",
+        "Scanner",
+        "ChequeHistoryManager",
+        "chequeProcessor"
+      ],
+      "dependents": [],
+      "content": "public class CreateApplication {\n    public static void main(String[] args) {\n        User authenticatedUser = null;\n        Scanner scanner = new Scanner(System.in);\n\n        System.out.println(\"Starting Cheque Processing System with Enhanced Fraud Detection...\");\n        \n        // Initialize services\n        CurrencyExchangeService currencyExchangeService = new CurrencyExchangeService();\n        SignatureVerificationService signatureVerificationService = new SignatureVerificationService();\n        CoreBankingSystemUpdater coreBankingSystemUpdater = new CoreBankingSystemUpdater();\n        UserService userService = new UserService(); // Initialize UserService\n        ChequeHistoryManager chequeHistoryManager = new ChequeHistoryManager();\n        FraudDetectionService fraudDetectionService = new FraudDetectionService();\n\n        // Set up dependencies\n        fraudDetectionService.setHistoryManager(chequeHistoryManager);\n\n        System.out.println(\"System initialized successfully.\");\n\n        // --- Login Process ---\n        authenticatedUser = performLogin(scanner, userService);\n        if (authenticatedUser == null) {\n            System.out.println(\"Maximum login attempts reached. Exiting.\");\n            return; // Exit if login fails after retries\n        }\n\n        // Initialize cheque processor\n        ChequeProcessor chequeProcessor = new ChequeProcessor(currencyExchangeService, signatureVerificationService,\n                coreBankingSystemUpdater, chequeHistoryManager, fraudDetectionService);\n        \n        System.out.println(\"System initialized successfully.\");\n  \n        while (authenticatedUser != null) { // Continue loop only if authenticated\n            System.out.println(\"\\n--- Cheque Processing System ---\");  \n            System.out.println(\"1. Process a Single Cheque\");  \n            System.out.println(\"2. Process Multiple Cheques (Batch)\");\n            System.out.println(\"3. View Cheque History\");  \n            System.out.println(\"4. Currency Exchange Information\");  \n            System.out.println(\"5. Generate Cheque Reports\");\n            System.out.println(\"6. Exit\");  \n            System.out.print(\"Enter your choice: \");  \n            int choice = scanner.nextInt();  \n            scanner.nextLine(); // Consume newline  \n  \n            switch (choice) {  \n                case 1:  \n                    System.out.println(\"Enter account number:\");  \n                    String accountNumber = scanner.nextLine();  \n  \n                    System.out.println(\"Enter cheque number:\");  \n                    String chequeNumber = scanner.nextLine();  \n  \n                    System.out.println(\"Enter currency (e.g., USD, EUR, GBP):\");  \n                    String currency = scanner.nextLine();  \n  \n                    System.out.println(\"Enter amount:\");  \n                    double amount = scanner.nextDouble();  \n                    scanner.nextLine(); // Consume newline  \n  \n                    System.out.println(\"Enter signature:\");  \n                    String signature = scanner.nextLine();  \n  \n                    // Process the cheque  \n                    chequeProcessor.processCheque(accountNumber, chequeNumber, currency, amount, signature);  \n                    break;  \n  \n                case 2:\n                    // Process multiple cheques in a batch\n                    processChequeBatch(scanner, chequeProcessor);\n                    break;\n\n                case 3:  \n                    System.out.println(\"Enter account number to view cheque history:\");  \n                    String historyAccountNumber = scanner.nextLine();  \n                    chequeHistoryManager.displayChequeHistory(historyAccountNumber);  \n                    break;  \n  \n                case 4:\n                    displayCurrencyExchangeMenu(scanner, currencyExchangeService);\n                    break;\n                    \n                case 5:\n                    handleReportGeneration(scanner, chequeHistoryManager);\n                    break;\n\n                case 6:  \n                    System.out.println(\"Exiting...\");  \n                    scanner.close();  \n                    return;  \n  \n                default:  \n                    System.out.println(\"Invalid choice. Please try again.\");  \n            }\n        }\n    }",
+      "metadata": {
+        "modifiers": [],
+        "return_type": null,
+        "parameters": [],
+        "parent_class": null,
+        "start_line": 4884,
+        "end_line": 4979
+      }
+    }
+  },
+  "summaries": {
+    "MainApplication": {
+      "name": "MainApplication",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class MainApplication",
+      "inputs": [
+        "ExceptionReportManager dependency",
+        "BatchCheque dependency",
+        "CurrencyExchangeService dependency",
+        "Logger dependency",
+        "chequeProcessor dependency",
+        "out dependency",
+        "ChequePrintingService dependency",
+        "FraudDetectionService dependency",
+        "EmailNotificationService dependency",
+        "ChequeStatusManager dependency",
+        "adminService dependency",
+        "ClearinghouseService dependency",
+        "CryptographyService dependency",
+        "scanner dependency",
+        "fraudDetectionService dependency",
+        "ChequeProcessor dependency",
+        "SignatureVerificationService dependency",
+        "CoreBankingSystemUpdater dependency",
+        "ArrayList dependency",
+        "batchCheques dependency",
+        "ex dependency",
+        "ChequeImageHandler dependency",
+        "UserService dependency",
+        "exceptionReportManager dependency",
+        "services dependency",
+        "SimpleDateFormat dependency",
+        "chequeStatusManager dependency",
+        "chequeHistoryManager dependency",
+        "Scanner dependency",
+        "ChequeHistoryManager dependency"
+      ],
+      "outputs": [
+        "Console output",
+        "Logging output",
+        "Database state changes"
+      ],
+      "business_rules": [
+        "Input validation and null checks",
+        "Iterative processing and data transformation",
+        "Date/time processing",
+        "Data persistence operations",
+        "Logging and audit trail"
+      ],
+      "dependencies": [
+        "ExceptionReportManager",
+        "BatchCheque",
+        "CurrencyExchangeService",
+        "Logger",
+        "chequeProcessor",
+        "out",
+        "ChequePrintingService",
+        "FraudDetectionService",
+        "EmailNotificationService",
+        "ChequeStatusManager",
+        "adminService",
+        "ClearinghouseService",
+        "CryptographyService",
+        "scanner",
+        "fraudDetectionService",
+        "ChequeProcessor",
+        "SignatureVerificationService",
+        "CoreBankingSystemUpdater",
+        "ArrayList",
+        "batchCheques",
+        "ex",
+        "ChequeImageHandler",
+        "UserService",
+        "exceptionReportManager",
+        "services",
+        "SimpleDateFormat",
+        "chequeStatusManager",
+        "chequeHistoryManager",
+        "Scanner",
+        "ChequeHistoryManager"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "EmailNotificationService": {
+      "name": "EmailNotificationService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class EmailNotificationService",
+      "inputs": [
+        "out dependency"
+      ],
+      "outputs": [
+        "Console output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [
+        "out"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "ChequePrintingService": {
+      "name": "ChequePrintingService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class ChequePrintingService",
+      "inputs": [
+        "bankName dependency",
+        "out dependency",
+        "SimpleDateFormat dependency",
+        "currencyFormatter dependency",
+        "NumberFormat dependency",
+        "dateFormat dependency"
+      ],
+      "outputs": [
+        "Console output"
+      ],
+      "business_rules": [
+        "Iterative processing and data transformation",
+        "Date/time processing"
+      ],
+      "dependencies": [
+        "bankName",
+        "out",
+        "SimpleDateFormat",
+        "currencyFormatter",
+        "NumberFormat",
+        "dateFormat"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "User": {
+      "name": "User",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class User",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "UserService": {
+      "name": "UserService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class UserService",
+      "inputs": [
+        "HashMap dependency"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Iterative processing and data transformation"
+      ],
+      "dependencies": [
+        "HashMap"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "BatchCheque": {
+      "name": "BatchCheque",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class BatchCheque",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "ExceptionReportManager": {
+      "name": "ExceptionReportManager",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class ExceptionReportManager",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "ExceptionRecord": {
+      "name": "ExceptionRecord",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class ExceptionRecord",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "FIRDetails": {
+      "name": "FIRDetails",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class FIRDetails",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "ChequeStatusManager": {
+      "name": "ChequeStatusManager",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class ChequeStatusManager",
+      "inputs": [
+        "out dependency",
+        "chequeStatusMap dependency",
+        "HashMap dependency"
+      ],
+      "outputs": [
+        "Console output"
+      ],
+      "business_rules": [
+        "Iterative processing and data transformation"
+      ],
+      "dependencies": [
+        "out",
+        "chequeStatusMap",
+        "HashMap"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "Logger": {
+      "name": "Logger",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class Logger",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Logging output"
+      ],
+      "business_rules": [
+        "Logging and audit trail"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "ChequeImageHandler": {
+      "name": "ChequeImageHandler",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class ChequeImageHandler",
+      "inputs": [
+        "out dependency",
+        "Paths dependency",
+        "Files dependency",
+        "filePath dependency"
+      ],
+      "outputs": [
+        "Console output"
+      ],
+      "business_rules": [
+        "Input validation and null checks"
+      ],
+      "dependencies": [
+        "out",
+        "Paths",
+        "Files",
+        "filePath"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "CryptographyService": {
+      "name": "CryptographyService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class CryptographyService",
+      "inputs": [
+        "encryptedString dependency"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [
+        "String",
+        "encryptedString"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "ClearinghouseService": {
+      "name": "ClearinghouseService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class ClearinghouseService",
+      "inputs": [
+        "out dependency",
+        "Math dependency",
+        "digitalSignature dependency"
+      ],
+      "outputs": [
+        "Console output"
+      ],
+      "business_rules": [
+        "Mathematical calculations and computations"
+      ],
+      "dependencies": [
+        "out",
+        "Math",
+        "digitalSignature"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "SignatureVerificationService": {
+      "name": "SignatureVerificationService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class SignatureVerificationService",
+      "inputs": [
+        "accountSignatures dependency",
+        "HashMap dependency"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Iterative processing and data transformation"
+      ],
+      "dependencies": [
+        "accountSignatures",
+        "HashMap"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "ChequeProcessor": {
+      "name": "ChequeProcessor",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class ChequeProcessor",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Database state changes"
+      ],
+      "business_rules": [
+        "Data persistence operations"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "CurrencyExchangeService": {
+      "name": "CurrencyExchangeService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class CurrencyExchangeService",
+      "inputs": [
+        "HashMap dependency"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Iterative processing and data transformation"
+      ],
+      "dependencies": [
+        "HashMap"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "CurrencyExchangeServiceV2": {
+      "name": "CurrencyExchangeServiceV2",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class CurrencyExchangeServiceV2",
+      "inputs": [
+        "RATES dependency",
+        "HashMap dependency"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [
+        "RATES",
+        "HashMap"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "CurrencyRate": {
+      "name": "CurrencyRate",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class CurrencyRate",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Database state changes"
+      ],
+      "business_rules": [
+        "Data persistence operations"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "FraudDetectionService": {
+      "name": "FraudDetectionService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class FraudDetectionService",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "ChequeTransaction": {
+      "name": "ChequeTransaction",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class ChequeTransaction",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "FraudDetectionServiceV1": {
+      "name": "FraudDetectionServiceV1",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class FraudDetectionServiceV1",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "FraudDetectionServiceV2": {
+      "name": "FraudDetectionServiceV2",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class FraudDetectionServiceV2",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Logging output"
+      ],
+      "business_rules": [
+        "Logging and audit trail"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "FraudDetection": {
+      "name": "FraudDetection",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class FraudDetection",
+      "inputs": [
+        "chequeRegistry dependency",
+        "HashSet dependency",
+        "processedCheques dependency",
+        "HashMap dependency"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Boolean logic and decision making",
+        "String validation and processing"
+      ],
+      "dependencies": [
+        "chequeRegistry",
+        "HashSet",
+        "processedCheques",
+        "HashMap"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "TransactionRecord": {
+      "name": "TransactionRecord",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class TransactionRecord",
+      "inputs": [
+        "Standard input parameters"
+      ],
+      "outputs": [
+        "Standard output"
+      ],
+      "business_rules": [
+        "Basic business logic implementation"
+      ],
+      "dependencies": [],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "AccountProfile": {
+      "name": "AccountProfile",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class AccountProfile",
+      "inputs": [
+        "Math dependency"
+      ],
+      "outputs": [
+        "Database state changes"
+      ],
+      "business_rules": [
+        "Mathematical calculations and computations",
+        "Data persistence operations"
+      ],
+      "dependencies": [
+        "Math"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "AdminService": {
+      "name": "AdminService",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class AdminService",
+      "inputs": [
+        "out dependency",
+        "HashSet dependency",
+        "ifscToBankCode dependency",
+        "HashMap dependency"
+      ],
+      "outputs": [
+        "Console output",
+        "Database state changes"
+      ],
+      "business_rules": [
+        "Iterative processing and data transformation",
+        "Data persistence operations"
+      ],
+      "dependencies": [
+        "out",
+        "HashSet",
+        "ifscToBankCode",
+        "HashMap"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "ChequeApplication": {
+      "name": "ChequeApplication",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class ChequeApplication",
+      "inputs": [
+        "ExceptionReportManager dependency",
+        "BatchCheque dependency",
+        "CurrencyExchangeService dependency",
+        "Logger dependency",
+        "chequeProcessor dependency",
+        "out dependency",
+        "ChequePrintingService dependency",
+        "FraudDetectionService dependency",
+        "EmailNotificationService dependency",
+        "ChequeStatusManager dependency",
+        "adminService dependency",
+        "ClearinghouseService dependency",
+        "CryptographyService dependency",
+        "scanner dependency",
+        "fraudDetectionService dependency",
+        "ChequeProcessor dependency",
+        "SignatureVerificationService dependency",
+        "CoreBankingSystemUpdater dependency",
+        "ArrayList dependency",
+        "batchCheques dependency",
+        "ex dependency",
+        "ChequeImageHandler dependency",
+        "UserService dependency",
+        "exceptionReportManager dependency",
+        "services dependency",
+        "SimpleDateFormat dependency",
+        "chequeStatusManager dependency",
+        "chequeHistoryManager dependency",
+        "Scanner dependency",
+        "ChequeHistoryManager dependency"
+      ],
+      "outputs": [
+        "Console output",
+        "Logging output",
+        "Database state changes"
+      ],
+      "business_rules": [
+        "Input validation and null checks",
+        "Iterative processing and data transformation",
+        "Date/time processing",
+        "Data persistence operations",
+        "Logging and audit trail"
+      ],
+      "dependencies": [
+        "ExceptionReportManager",
+        "BatchCheque",
+        "CurrencyExchangeService",
+        "Logger",
+        "chequeProcessor",
+        "out",
+        "ChequePrintingService",
+        "FraudDetectionService",
+        "EmailNotificationService",
+        "ChequeStatusManager",
+        "adminService",
+        "ClearinghouseService",
+        "CryptographyService",
+        "scanner",
+        "fraudDetectionService",
+        "ChequeProcessor",
+        "SignatureVerificationService",
+        "CoreBankingSystemUpdater",
+        "ArrayList",
+        "batchCheques",
+        "ex",
+        "ChequeImageHandler",
+        "UserService",
+        "exceptionReportManager",
+        "services",
+        "SimpleDateFormat",
+        "chequeStatusManager",
+        "chequeHistoryManager",
+        "Scanner",
+        "ChequeHistoryManager"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    },
+    "CreateApplication": {
+      "name": "CreateApplication",
+      "type": "class",
+      "file_path": "DemoApplication.java",
+      "purpose": "class CreateApplication",
+      "inputs": [
+        "scanner dependency",
+        "chequeHistoryManager dependency",
+        "fraudDetectionService dependency",
+        "ChequeProcessor dependency",
+        "UserService dependency",
+        "SignatureVerificationService dependency",
+        "out dependency",
+        "CoreBankingSystemUpdater dependency",
+        "FraudDetectionService dependency",
+        "CurrencyExchangeService dependency",
+        "Scanner dependency",
+        "ChequeHistoryManager dependency",
+        "chequeProcessor dependency"
+      ],
+      "outputs": [
+        "Console output",
+        "Logging output",
+        "Database state changes"
+      ],
+      "business_rules": [
+        "Input validation and null checks",
+        "Iterative processing and data transformation",
+        "Data persistence operations",
+        "Logging and audit trail"
+      ],
+      "dependencies": [
+        "scanner",
+        "chequeHistoryManager",
+        "fraudDetectionService",
+        "ChequeProcessor",
+        "UserService",
+        "SignatureVerificationService",
+        "out",
+        "CoreBankingSystemUpdater",
+        "FraudDetectionService",
+        "CurrencyExchangeService",
+        "Scanner",
+        "ChequeHistoryManager",
+        "chequeProcessor"
+      ],
+      "key_methods": [],
+      "complexity_score": 0.0
+    }
+  },
+  "dependency_map": {
+    "MainApplication": [
+      "ExceptionReportManager",
+      "BatchCheque",
+      "CurrencyExchangeService",
+      "Logger",
+      "chequeProcessor",
+      "out",
+      "ChequePrintingService",
+      "FraudDetectionService",
+      "EmailNotificationService",
+      "ChequeStatusManager",
+      "adminService",
+      "ClearinghouseService",
+      "CryptographyService",
+      "scanner",
+      "fraudDetectionService",
+      "ChequeProcessor",
+      "SignatureVerificationService",
+      "CoreBankingSystemUpdater",
+      "ArrayList",
+      "batchCheques",
+      "ex",
+      "ChequeImageHandler",
+      "UserService",
+      "exceptionReportManager",
+      "services",
+      "SimpleDateFormat",
+      "chequeStatusManager",
+      "chequeHistoryManager",
+      "Scanner",
+      "ChequeHistoryManager"
+    ],
+    "EmailNotificationService": [
+      "out"
+    ],
+    "ChequePrintingService": [
+      "bankName",
+      "out",
+      "currencyFormatter",
+      "SimpleDateFormat",
+      "NumberFormat",
+      "dateFormat"
+    ],
+    "UserService": [
+      "HashMap"
+    ],
+    "ChequeStatusManager": [
+      "out",
+      "chequeStatusMap",
+      "HashMap"
+    ],
+    "ChequeImageHandler": [
+      "out",
+      "Paths",
+      "Files",
+      "filePath"
+    ],
+    "CryptographyService": [
+      "String",
+      "encryptedString"
+    ],
+    "ClearinghouseService": [
+      "out",
+      "Math",
+      "digitalSignature"
+    ],
+    "SignatureVerificationService": [
+      "accountSignatures",
+      "HashMap"
+    ],
+    "CurrencyExchangeService": [
+      "HashMap"
+    ],
+    "CurrencyExchangeServiceV2": [
+      "RATES",
+      "HashMap"
+    ],
+    "FraudDetection": [
+      "chequeRegistry",
+      "HashSet",
+      "processedCheques",
+      "HashMap"
+    ],
+    "AccountProfile": [
+      "Math"
+    ],
+    "AdminService": [
+      "out",
+      "HashSet",
+      "ifscToBankCode",
+      "HashMap"
+    ],
+    "ChequeApplication": [
+      "ExceptionReportManager",
+      "BatchCheque",
+      "CurrencyExchangeService",
+      "Logger",
+      "chequeProcessor",
+      "out",
+      "ChequePrintingService",
+      "FraudDetectionService",
+      "EmailNotificationService",
+      "ChequeStatusManager",
+      "adminService",
+      "ClearinghouseService",
+      "CryptographyService",
+      "scanner",
+      "fraudDetectionService",
+      "ChequeProcessor",
+      "SignatureVerificationService",
+      "CoreBankingSystemUpdater",
+      "ArrayList",
+      "batchCheques",
+      "ex",
+      "ChequeImageHandler",
+      "UserService",
+      "exceptionReportManager",
+      "services",
+      "SimpleDateFormat",
+      "chequeStatusManager",
+      "chequeHistoryManager",
+      "Scanner",
+      "ChequeHistoryManager"
+    ],
+    "CreateApplication": [
+      "scanner",
+      "fraudDetectionService",
+      "ChequeProcessor",
+      "UserService",
+      "SignatureVerificationService",
+      "out",
+      "CoreBankingSystemUpdater",
+      "FraudDetectionService",
+      "chequeHistoryManager",
+      "Scanner",
+      "ChequeHistoryManager",
+      "CurrencyExchangeService",
+      "chequeProcessor"
+    ]
+  },
+  "reverse_dependency_map": {
+    "ExceptionReportManager": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "BatchCheque": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "CurrencyExchangeService": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "Logger": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "chequeProcessor": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "out": [
+      "MainApplication",
+      "ChequeImageHandler",
+      "AdminService",
+      "ChequePrintingService",
+      "ChequeApplication",
+      "CreateApplication",
+      "EmailNotificationService",
+      "ChequeStatusManager",
+      "ClearinghouseService"
+    ],
+    "ChequePrintingService": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "FraudDetectionService": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "EmailNotificationService": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "ChequeStatusManager": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "adminService": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "ClearinghouseService": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "CryptographyService": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "scanner": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "fraudDetectionService": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "ChequeProcessor": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "SignatureVerificationService": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "CoreBankingSystemUpdater": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "ArrayList": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "batchCheques": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "ex": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "ChequeImageHandler": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "UserService": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "exceptionReportManager": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "services": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "SimpleDateFormat": [
+      "ChequePrintingService",
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "chequeStatusManager": [
+      "ChequeApplication",
+      "MainApplication"
+    ],
+    "chequeHistoryManager": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "Scanner": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "ChequeHistoryManager": [
+      "ChequeApplication",
+      "CreateApplication",
+      "MainApplication"
+    ],
+    "bankName": [
+      "ChequePrintingService"
+    ],
+    "currencyFormatter": [
+      "ChequePrintingService"
+    ],
+    "NumberFormat": [
+      "ChequePrintingService"
+    ],
+    "dateFormat": [
+      "ChequePrintingService"
+    ],
+    "HashMap": [
+      "UserService",
+      "SignatureVerificationService",
+      "CurrencyExchangeService",
+      "CurrencyExchangeServiceV2",
+      "FraudDetection",
+      "ChequeStatusManager",
+      "AdminService"
+    ],
+    "chequeStatusMap": [
+      "ChequeStatusManager"
+    ],
+    "Paths": [
+      "ChequeImageHandler"
+    ],
+    "Files": [
+      "ChequeImageHandler"
+    ],
+    "filePath": [
+      "ChequeImageHandler"
+    ],
+    "String": [
+      "CryptographyService"
+    ],
+    "encryptedString": [
+      "CryptographyService"
+    ],
+    "Math": [
+      "AccountProfile",
+      "ClearinghouseService"
+    ],
+    "digitalSignature": [
+      "ClearinghouseService"
+    ],
+    "accountSignatures": [
+      "SignatureVerificationService"
+    ],
+    "RATES": [
+      "CurrencyExchangeServiceV2"
+    ],
+    "chequeRegistry": [
+      "FraudDetection"
+    ],
+    "HashSet": [
+      "FraudDetection",
+      "AdminService"
+    ],
+    "processedCheques": [
+      "FraudDetection"
+    ],
+    "ifscToBankCode": [
+      "AdminService"
+    ]
+  }
+}

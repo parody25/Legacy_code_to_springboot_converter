@@ -3,59 +3,60 @@
     "structure": {
       "total_files": 1,
       "java_files": 1,
-      "total_chunks": 1,
-      "total_code_size": 1179,
-      "classes_detected": 1,
-      "methods_detected": 7,
-      "complexity_score": 2.4074074074074074
+      "total_chunks": 71,
+      "total_code_size": 78292,
+      "classes_detected": 71,
+      "methods_detected": 0,
+      "interfaces_detected": 0,
+      "enums_detected": 0,
+      "complexity_score": 4.459830316110667,
+      "avg_dependencies": 2.112676056338028
     },
-    "syntax_validation": {
-      "total_chunks": 1,
-      "valid_chunks": 1,
-      "invalid_chunks": 0,
-      "details": [
-        {
-          "syntax": true,
-          "file": "./data/workspace\\uploaded\\Sample Java.java",
-          "chunk_index": 0,
-          "chunk_size": 1179
-        }
-      ]
+    "code_analysis": {
+      "total_chunks": 71,
+      "total_code_size": 78292,
+      "classes_detected": 71,
+      "methods_detected": 0,
+      "interfaces_detected": 0,
+      "enums_detected": 0,
+      "complexity_score": 4.459830316110667,
+      "avg_dependencies": 2.112676056338028
     }
   },
   "documentation_quality_assessment": {
-    "overall_score": 75,
+    "overall_score": 80,
     "status": "PASS_WITH_ISSUES",
-    "documentation_completeness": 80,
-    "technical_accuracy": 70,
+    "documentation_completeness": 85,
+    "technical_accuracy": 80,
     "business_logic_coverage": 75,
-    "migration_readiness": 75,
+    "migration_readiness": 80,
     "critical_issues": [
       {
-        "component": "User",
-        "issue": "Business logic for `isAdult` and `greet` methods is not fully documented, including edge cases and validation rules.",
+        "component": "UserService",
+        "issue": "Missing validation logic documentation for user registration and authentication.",
         "severity": "HIGH"
       },
       {
-        "component": "Migration Plan",
-        "issue": "No clear strategy for handling potential future requirements like database integration or external API calls.",
-        "severity": "MEDIUM"
+        "component": "ChequeProcessor",
+        "issue": "Error handling for database persistence operations is not documented.",
+        "severity": "HIGH"
       }
     ],
     "recommendations": [
-      "Document the specific business rules and edge cases for the `isAdult` and `greet` methods, including how invalid or null inputs are handled.",
-      "Expand the migration plan to include optional future enhancements, such as persistence layers or external API integrations.",
-      "Add a section to the documentation that explicitly outlines error handling strategies for the `User` class and its methods."
+      "Document validation rules for UserService, including constraints on username, password, and role.",
+      "Add error handling strategies for ChequeProcessor, especially for database transaction failures.",
+      "Expand the documentation for MainApplication to include detailed workflows for initializing services and handling exceptions.",
+      "Include edge case scenarios for cheque processing and fraud detection in the business logic section."
     ],
     "manual_review_required": [
       {
         "area": "Business Logic",
-        "reason": "Validation rules and edge cases for `isAdult` and `greet` methods need verification.",
+        "reason": "Complex workflows in MainApplication, such as service initialization and exception handling, need verification.",
         "priority": "HIGH"
       },
       {
-        "area": "Migration Plan",
-        "reason": "The plan does not address how to handle potential future requirements, such as database integration or scaling.",
+        "area": "Data Model",
+        "reason": "Ensure that all legacy POJOs are correctly mapped to JPA entities with appropriate annotations.",
         "priority": "MEDIUM"
       }
     ]
